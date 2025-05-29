@@ -36,29 +36,4 @@ public class CategoriaDAO {
         }
         return categorias;
     }
-
-    public void eliminarCategoria(int idCategoria) {
-        String sql = "DELETE FROM categorias WHERE id_categoria = ?";
-        try (Connection conn = DatabaseConnection.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idCategoria);
-            stmt.executeUpdate();
-            System.out.println("✅ Categoría eliminada correctamente.");
-        } catch (SQLException e) {
-            LOGGER.severe("❌ Error al eliminar categoría: " + e.getMessage());
-        }
-    }
-
-    public void actualizarCategoria(int idCategoria, String nuevoNombre) {
-        String sql = "UPDATE categorias SET nombre_categoria = ? WHERE id_categoria = ?";
-        try (Connection conn = DatabaseConnection.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, nuevoNombre);
-            stmt.setInt(2, idCategoria);
-            stmt.executeUpdate();
-            System.out.println("✅ Categoría actualizada correctamente.");
-        } catch (SQLException e) {
-            LOGGER.severe("❌ Error al actualizar categoría: " + e.getMessage());
-        }
-    }
 }

@@ -1,5 +1,5 @@
 import com.nuevolooksr.stock.dao.ProductoDAO;
-import com.nuevolooksr.stock.database.DatabaseConnection;
+import com.nuevolooksr.stock.utils.DatabaseConnection;
 import com.nuevolooksr.stock.model.Producto;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ public class TestProductoDAO {
     public static void main(String[] args) {
         try {
             Connection conexion = DatabaseConnection.conectar();
-            ProductoDAO productoDAO = new ProductoDAO(conexion);
+            ProductoDAO productoDAO = new ProductoDAO();
 
             // Agregar un nuevo producto de prueba
             Producto nuevoProducto = new Producto(0, "Peluca Natural", "Peluca de cabello natural", 15000.0, 10, 5, 1);
@@ -24,7 +24,7 @@ public class TestProductoDAO {
             }
 
             // Cerrar conexión
-            DatabaseConnection.cerrarConexion(conexion);
+            DatabaseConnection.cerrarConexion();
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -2,45 +2,73 @@ package com.nuevolooksr.stock.reports;
 
 import com.nuevolooksr.stock.dao.ProductoDAO;
 import com.nuevolooksr.stock.model.Producto;
-import com.itextpdf.kernel.pdf.*;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.*;
-import com.itextpdf.io.font.constants.StandardFonts;
+import org.apache.pdfbox.pdmodel.*;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class GenerarReportePDF {
-    public static void generarReporte() {
-        try {
-            String destino = "Reporte_Stock.pdf";
-            PdfWriter writer = new PdfWriter(destino);
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
+    public static void generarReporte(String destino) {
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
 
-            PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-            document.add(new Paragraph("Reporte de Stock").setFont(boldFont).setFontSize(14));
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, 750);
+            contentStream.showText("Reporte de Inventario - NuevoLookSR");
+            contentStream.endText();
 
-            Table table = new Table(new float[]{3, 3, 3});
-            table.setWidth(500);
-            table.addCell(new Cell().add(new Paragraph("Producto").setFont(boldFont)));
-            table.addCell(new Cell().add(new Paragraph("Stock en Depósito").setFont(boldFont)));
-            table.addCell(new Cell().add(new Paragraph("Stock en Local").setFont(boldFont)));
+            contentStream.setFont(PDType1Font.HELVETICA, 12);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, 730);
+            contentStream.showText("Fecha: " + LocalDate.now());
+            contentStream.endText();
+
+            // 🔹 Dibujar encabezados de tabla
+            int yOffset = 700;
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, yOffset);
+            contentStream.showText("Producto");
+            contentStream.newLineAtOffset(200, 0);
+            contentStream.showText("Stock Depósito");
+            contentStream.newLineAtOffset(120, 0);
+            contentStream.showText("Stock Local");
+            contentStream.endText();
+
+            yOffset -= 20;
+            contentStream.moveTo(50, yOffset);
+            contentStream.lineTo(500, yOffset);
+            contentStream.stroke();
+            yOffset -= 10;
 
             ProductoDAO productoDAO = new ProductoDAO();
             List<Producto> productos = productoDAO.obtenerProductos();
 
-            for (Producto p : productos) {
-                table.addCell(p.getNombre());
-                table.addCell(String.valueOf(p.getStockDeposito()));
-                table.addCell(String.valueOf(p.getStockLocal()));
+            contentStream.setFont(PDType1Font.HELVETICA, 12);
+            for (Producto producto : productos) {
+                contentStream.beginText();
+                contentStream.newLineAtOffset(50, yOffset);
+                contentStream.showText(producto.getNombre());
+                contentStream.newLineAtOffset(200, 0);
+                contentStream.showText(String.valueOf(producto.getStockDeposito()));
+                contentStream.newLineAtOffset(120, 0);
+                contentStream.showText(String.valueOf(producto.getStockLocal()));
+                contentStream.endText();
+
+                yOffset -= 15;
             }
 
-            document.add(table);
-            document.close();
-            System.out.println("✅ PDF generado exitosamente en: " + destino);
-        } catch (Exception e) {
-            e.printStackTrace();
+            contentStream.close();
+            document.save(destino);
+            System.out.println("✅ PDF generado correctamente en: " + destino);
+        } catch (IOException e) {
+            System.err.println("❌ Error al generar PDF: " + e.getMessage());
         }
     }
 }

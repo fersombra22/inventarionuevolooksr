@@ -1,5 +1,7 @@
 package com.nuevolooksr.stock.model;
 
+import com.nuevolooksr.stock.dao.CategoriaDAO;
+
 public class Producto {
     private int id;
     private String nombre;
@@ -7,7 +9,7 @@ public class Producto {
     private double precio;
     private int stockDeposito;
     private int stockLocal;
-    private int idCategoria; // Ahora referencia a la tabla categorías
+    private int idCategoria; // Referencia a la tabla categorías
 
     public Producto(int id, String nombre, String descripcion, double precio, int stockDeposito, int stockLocal, int idCategoria) {
         this.id = id;
@@ -33,4 +35,13 @@ public class Producto {
     public void setStockLocal(int stockLocal) { this.stockLocal = stockLocal; }
     public int getIdCategoria() { return idCategoria; }
     public void setIdCategoria(int idCategoria) { this.idCategoria = idCategoria; }
+
+    public String getNombreCategoria() {
+        CategoriaDAO categoriaDAO = new CategoriaDAO();
+        return categoriaDAO.obtenerCategorias().stream()
+                .filter(c -> c.getId() == this.idCategoria)
+                .map(Categoria::getNombre)
+                .findFirst()
+                .orElse("Sin categoría");
+    }
 }
